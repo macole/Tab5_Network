@@ -42,7 +42,6 @@ M5Stack Tab5のWiFi機能を使用して、MQTTプロトコルでIoTデバイス
    const char* password = "YOUR_WIFI_PASSWORD";
    const char* mqtt_server = "mqtt.m5stack.com";
    ```
-   - **重要**: `secrets.h`は`.gitignore`に追加されているため、Gitにコミットされません。認証情報が漏れる心配はありません。
 
 4. **プログラムのアップロード**
    - Arduino IDEまたはArduino CLIでプログラムをアップロード

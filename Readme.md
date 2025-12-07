@@ -35,35 +35,28 @@ Tab5_Network/
 ├── ChatGPT/                      # ChatGPT API 連携サンプル
 │   ├── ChatGPT.ino
 │   ├── Readme.md
-│   ├── secrets.h.example         # API キー等のサンプル
-│   └── secrets.h                 # ユーザー作成（コミットしない）
+│   └── secrets.h.example         # API キー等のサンプル
 │
 ├── HttpsClient/                  # 汎用 HTTPS クライアント
 │   ├── HttpsClient.ino
 │   ├── Readme.md
-│   ├── secrets.h.example
-│   └── secrets.h
+│   └── secrets.h.example
 │
 ├── MQTT/                         # MQTT 通信サンプル
 │   ├── MQTT.ino
 │   ├── Readme.md
-│   ├── secrets.h.example
-│   └── secrets.h
+│   └── secrets.h.example
 │
 ├── WebAPI_Wether/                # 天気 Web API アクセス
 │   ├── WebAPI_Wether.ino
 │   ├── Readme.md
-│   ├── secrets.h.example
-│   └── secrets.h
+│   └── secrets.h.example
 │
 ├── WebServer/                    # シンプル Web サーバ
 │   ├── webserver.ino
 │   ├── Readme.md
-│   ├── secrets.h.example
-│   └── secrets.h                 # ユーザー作成（コミットしない）
+│   └── secrets.h.example
 │
-├── Wifi/                         # 共通 Wi-Fi 設定（シークレット置き場）
-│   └── secrets.h                 # SSID / パスワード等（ユーザー作成）
 │
 ├── Wifi_Antenna/                 # Wi-Fi アンテナテスト
 │   ├── Wifi_Antenna.ino
@@ -146,8 +139,6 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 
 - テンプレート: `secrets.h.example`
 - 実ファイル: `secrets.h`（ユーザーがコピーして編集）
-
-`secrets.h` は **Git にコミットしない** 想定です。API キーやパスワードを含めないよう注意してください。
 
 ---
 

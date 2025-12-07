@@ -54,7 +54,6 @@ M5Stack Tab5でOpenAIのChatGPT APIと通信して対話するアプリケーシ
    const char *password = "YOUR_WIFI_PASSWORD";
    const char *openaiApiKey = "sk-..."; // OpenAI APIキー
    ```
-   - **重要**: `secrets.h`は`.gitignore`に追加されているため、Gitにコミットされません。
 
 4. **プログラムのアップロード**
    - Arduino IDEまたはArduino CLIでプログラムをアップロード

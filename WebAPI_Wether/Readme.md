@@ -47,7 +47,6 @@ M5Stack Tab5で気象庁の天気予報APIから天気情報を取得して表�
    const char *ssid = "YOUR_WIFI_SSID";
    const char *password = "YOUR_WIFI_PASSWORD";
    ```
-   - **重要**: `secrets.h`は`.gitignore`に追加されているため、Gitにコミットされません。
 
 3. **地域コードの設定（オプション）**
    - デフォルトでは東京（130000）の天気情報を取得します
