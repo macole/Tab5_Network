@@ -264,6 +264,40 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 
 ---
 
+## 🔗 参考リンク集
+
+このプロジェクトのサンプルは、以下の資料やWebサイトを参考に作成されています。
+
+### 公式ドキュメント
+- [M5Stack Tab5 公式ドキュメント](https://docs.m5stack.com/)
+- [M5Stack Core2 公式ドキュメント](https://docs.m5stack.com/en/core/core2)
+- [ESP32 Arduino Core](https://docs.espressif.com/projects/arduino-esp32/en/latest/)
+
+### ライブラリ
+- [M5Unified GitHub](https://github.com/m5stack/M5Unified)
+- [M5GFX GitHub](https://github.com/m5stack/M5GFX)
+- [PubSubClient (MQTT) GitHub](https://github.com/knolleary/pubsubclient)
+- [ArduinoJson GitHub](https://github.com/bblanchon/ArduinoJson)
+
+### サンプル別参考リンク
+
+#### ChatGPT
+- [M5StackでChatGPTを動かす - Device Plus](https://deviceplus.jp/mc-general/m5stack-chatgpt-01/)
+- [OpenAI API Documentation](https://platform.openai.com/docs/api-reference)
+
+#### MQTT
+- [M5Stack Core2 MQTT Example](https://docs.m5stack.com/en/core/core2)
+- [MQTT.org](https://mqtt.org/)
+
+#### WebAPI_Wether
+- [気象庁の天気予報APIを使う - ボクにもわかる地上デジタル](https://bokunimo.net/blog/esp/3426/)
+- [気象庁 天気予報API](https://www.jma.go.jp/bosai/forecast/)
+
+#### SNTP
+- [ESP32 SNTP Time Synchronization](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/system_time.html)
+
+---
+
 ## 📝 ライセンス
 
 このプロジェクトは MIT ライセンスで公開されています。  
@@ -274,7 +308,7 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 ---
 
 **作成日**: 2025年12月6日  
-**最終更新**: 2025年12月21日（プロジェクト一覧表を追加、SNTP追加）  
+**最終更新**: 2025年12月21日（参考リンク集を追加）  
 **対象デバイス**: M5Stack Tab5 (ESP32-P4)  
 **開発環境**: Arduino IDE / Arduino CLI  
 **動作確認**: ✅ 全10プロジェクト正常動作確認済み
