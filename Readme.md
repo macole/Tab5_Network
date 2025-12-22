@@ -9,7 +9,7 @@ GUI / LVGL を中心としたサンプルは `Tab5_GUI`、センサーや表示�
 
 - **プロジェクト名**: M5Stack Tab5 Network / Web & Cloud サンプル集  
 - **対象デバイス**: M5Stack Tab5 (ESP32-P4)  
-- **総プロジェクト数**: 10個
+- **総プロジェクト数**: 9個
 - **主な機能**:
   - Wi-Fi 接続・スキャン・アンテナテスト
   - HTTPS / REST API アクセス
@@ -26,14 +26,6 @@ GUI / LVGL を中心としたサンプルは `Tab5_GUI`、センサーや表示�
 
 ```
 Tab5_Network/
-├── CameraWebServer/              # カメラ Web サーバ（ESP32-CAM 風デモ）
-│   ├── CameraWebServer.ino
-│   ├── app_httpd.cpp, camera_index.h など
-│   ├── board_config.h, camera_pins.h
-│   ├── partitions.csv
-│   ├── ci.json
-│   └── Readme.md
-│
 ├── ChatGPT/                      # ChatGPT API 連携サンプル
 │   ├── ChatGPT.ino
 │   ├── Readme.md
@@ -64,26 +56,18 @@ Tab5_Network/
 │   ├── Readme.md
 │   └── secrets.h.example
 │
-│
 ├── Wifi_Antenna/                 # Wi-Fi アンテナテスト
 │   ├── Wifi_Antenna.ino
 │   └── Readme.md
 │
 ├── Wifi_Connect/                 # Wi-Fi 接続テスト（最小構成）
-│   ├── WIFI00_Connect.ino
+│   ├── Wifi_Connect.ino
 │   └── Readme.md
 │
 ├── Wifi_Scan/                    # Wi-Fi スキャン
-│   ├── WIFI01_Scan.ino
+│   ├── Wifi_Scan.ino
 │   └── Readme.md
 │
-├── Docs/                         # 共通ドキュメント・スクリプト
-│   ├── Arduino_Basic_Syntax_Guide.md
-│   ├── GPIO_Application_Guide.md
-│   ├── Manufacturing_Arduino_Samples.md
-│   ├── USB_Application_Guide.md
-│   ├── compile.sh                # ネットワーク系スケッチのビルド用
-│   └── monitor.sh                # シリアルモニタスクリプト
 │
 ├── LICENSE
 └── Readme.md                     # このファイル
@@ -149,7 +133,7 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 
 ---
 
-## 📊 プロジェクト一覧（全10個）
+## 📊 プロジェクト一覧（全9個）
 
 ### Wi-Fi基本機能（3個）
 | No. | プログラム名 | 状態 | 主要機能 |
@@ -171,11 +155,6 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 |-----|-------------|------|----------|
 | 8 | MQTT | ✅ 完了 | MQTTブローカー接続・Pub/Sub |
 | 9 | SNTP | ✅ 完了 | 時刻同期（NTPサーバー） |
-
-### カメラ・マルチメディア（1個）
-| No. | プログラム名 | 状態 | 主要機能 |
-|-----|-------------|------|----------|
-| 10 | CameraWebServer | ✅ 完了 | カメラ映像Webストリーミング |
 
 ---
 
@@ -202,16 +181,11 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
   - シンプルな HTTP Web サーバ
   - ブラウザから Tab5 にアクセスして状態を確認できます
 
-- **CameraWebServer/CameraWebServer.ino**
-  - カメラ映像をブラウザへ配信する Web サーバ
-  - `app_httpd.cpp` などを用いたマルチパート JPEG 配信の例
-  - ESP32カメラドライバを使用したカメラ制御
-
-- **Wifi_Connect/WIFI00_Connect.ino**
+- **Wifi_Connect/Wifi_Connect.ino**
   - 最小構成の Wi-Fi 接続テスト
   - HTTPS通信の例として、Yahoo NewsのRSSフィードを取得
 
-- **Wifi_Scan/WIFI01_Scan.ino**
+- **Wifi_Scan/Wifi_Scan.ino**
   - 周囲の Wi-Fi アクセスポイントをスキャンして一覧表示
 
 - **Wifi_Antenna/Wifi_Antenna.ino**
@@ -234,14 +208,13 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 
 ## 📊 プロジェクト統計
 
-- **総プログラム数**: 10個
-- **ドキュメント数**: 11個（README.md + 各プロジェクトReadme.md）
+- **総プログラム数**: 9個
+- **ドキュメント数**: 10個（README.md + 各プロジェクトReadme.md）
 - **動作確認率**: 100%
-- **カテゴリ数**: 4カテゴリ
+- **カテゴリ数**: 3カテゴリ
   - Wi-Fi基本機能: 3個
   - Web/API通信: 4個
   - IoT通信: 2個
-  - カメラ・マルチメディア: 1個
 
 ### 🎓 教育価値
 
@@ -308,8 +281,8 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 ---
 
 **作成日**: 2025年12月6日  
-**最終更新**: 2025年12月21日（参考リンク集を追加）  
+**最終更新**: 2025年12月22日（プロジェクト構成を最新化）  
 **対象デバイス**: M5Stack Tab5 (ESP32-P4)  
 **開発環境**: Arduino IDE / Arduino CLI  
-**動作確認**: ✅ 全10プロジェクト正常動作確認済み
+**動作確認**: ✅ 全9プロジェクト正常動作確認済み
 
