@@ -10,23 +10,12 @@
 #define NTP_SERVER2  "1.pool.ntp.org"
 #define NTP_SERVER3  "2.pool.ntp.org"
 
-#include <Arduino.h>
-#include <M5GFX.h>
 #include <M5Unified.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <esp_sntp.h>
-#include <sntp.h>
-
-#define SDIO2_CLK GPIO_NUM_12
-#define SDIO2_CMD GPIO_NUM_13
-#define SDIO2_D0  GPIO_NUM_11
-#define SDIO2_D1  GPIO_NUM_10
-#define SDIO2_D2  GPIO_NUM_9
-#define SDIO2_D3  GPIO_NUM_8
-#define SDIO2_RST GPIO_NUM_15
 
 // WiFi認証情報は secrets.h から読み込みます
 #include "secrets.h"
@@ -62,7 +51,6 @@ String lastError = "";
 
 void setup() {
     M5.begin();
-    Serial.begin(115200);
     delay(1000);
 
     M5.Display.setRotation(3); // 横向き
@@ -74,7 +62,10 @@ void setup() {
     M5.Display.println("Initializing...");
 
     // WiFi設定
-    WiFi.setPins(SDIO2_CLK, SDIO2_CMD, SDIO2_D0, SDIO2_D1, SDIO2_D2, SDIO2_D3, SDIO2_RST);
+    // Arduino IDEでM5Tab5ボードを選択した場合、定義済みのデフォルトピンを使用できます
+    WiFi.setPins(BOARD_SDIO_ESP_HOSTED_CLK, BOARD_SDIO_ESP_HOSTED_CMD, BOARD_SDIO_ESP_HOSTED_D0,
+                  BOARD_SDIO_ESP_HOSTED_D1, BOARD_SDIO_ESP_HOSTED_D2, BOARD_SDIO_ESP_HOSTED_D3,
+                  BOARD_SDIO_ESP_HOSTED_RESET);
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
 
@@ -144,8 +135,6 @@ void updateWeather() {
     
     if (httpCode == HTTP_CODE_OK) {
         String payload = http.getString();
-        Serial.println("Response received:");
-        Serial.println(payload);
 
         // JSONパース
         DynamicJsonDocument doc(16384); // 気象庁APIのレスポンスは大きいのでバッファを拡大
@@ -194,17 +183,12 @@ void updateWeather() {
             
             weatherUpdated = true;
             lastWeatherUpdate = millis();
-            Serial.println("Weather updated successfully");
         } else {
-            Serial.print("JSON parse error: ");
-            Serial.println(error.c_str());
             M5.Display.setCursor(0, 50);
             M5.Display.print("JSON Error: ");
             M5.Display.println(error.c_str());
         }
     } else {
-        Serial.print("HTTP error: ");
-        Serial.println(httpCode);
         lastError = "HTTP Error: " + String(httpCode);
         M5.Display.setCursor(0, 100);
         M5.Display.print("HTTP Error: ");

@@ -1,4 +1,4 @@
-# M5Stack Tab5 Network プロジェクト（Wi-Fi / HTTPS / MQTT / Camera）
+# M5Stack Tab5 Network プロジェクト（Wi-Fi / HTTPS / MQTT ）
 
 このリポジトリは、M5Stack Tab5 向けの **ネットワーク・クラウド連携サンプル** をまとめたものです。  
 GUI / LVGL を中心としたサンプルは `Tab5_GUI`、センサーや表示など Arduino スケッチ単体のサンプルは `Tab5_Arduino` を参照してください。
@@ -12,11 +12,12 @@ GUI / LVGL を中心としたサンプルは `Tab5_GUI`、センサーや表示�
 - **総プロジェクト数**: 9個
 - **主な機能**:
   - Wi-Fi 接続・スキャン・アンテナテスト
-  - HTTPS / REST API アクセス
-  - MQTT 通信
+  - HTTP/HTTPS 通信（RSSリーダー、REST API）
+  - MQTT 通信（Pub/Sub）
   - SNTP（時刻同期）
-  - Web サーバ / カメラ Web サーバ
-  - ChatGPT Web API 連携 など
+  - Web サーバー
+  - ChatGPT API 連携
+  - 天気情報API取得 など
 
 ---
 
@@ -31,13 +32,13 @@ Tab5_Network/
 │   ├── Readme.md
 │   └── secrets.h.example         # API キー等のサンプル
 │
-├── HttpsClient/                  # 汎用 HTTPS クライアント
-│   ├── HttpsClient.ino
+├── MQTT/                         # MQTT 通信サンプル
+│   ├── MQTT.ino
 │   ├── Readme.md
 │   └── secrets.h.example
 │
-├── MQTT/                         # MQTT 通信サンプル
-│   ├── MQTT.ino
+├── RSSReader/                    # RSSフィードリーダー（Yahoo News）
+│   ├── RSSReader.ino
 │   ├── Readme.md
 │   └── secrets.h.example
 │
@@ -48,8 +49,7 @@ Tab5_Network/
 │
 ├── WebAPI_Wether/                # 天気 Web API アクセス
 │   ├── WebAPI_Wether.ino
-│   ├── Readme.md
-│   └── secrets.h.example
+│   └── secrets.h.example         # WiFi認証情報のサンプル
 │
 ├── WebServer/                    # シンプル Web サーバ
 │   ├── webserver.ino
@@ -60,14 +60,14 @@ Tab5_Network/
 │   ├── Wifi_Antenna.ino
 │   └── Readme.md
 │
-├── Wifi_Connect/                 # Wi-Fi 接続テスト（最小構成）
+├── Wifi_Connect/                 # Wi-Fi 接続テスト（HTTP通信）
 │   ├── Wifi_Connect.ino
-│   └── Readme.md
+│   ├── Readme.md
+│   └── secrets.h.example
 │
 ├── Wifi_Scan/                    # Wi-Fi スキャン
 │   ├── Wifi_Scan.ino
 │   └── Readme.md
-│
 │
 ├── LICENSE
 └── Readme.md                     # このファイル
@@ -98,29 +98,34 @@ Arduino CLI での再現性のある設定例（共通）:
 ```bash
 arduino-cli compile \
   --fqbn esp32:esp32:esp32p4:PSRAM=enabled,FlashSize=16M,PartitionScheme=default,CDCOnBoot=cdc,USBMode=hwcdc,UploadSpeed=921600 \
-  HttpsClient/HttpsClient.ino
+  RSSReader/RSSReader.ino
 
 arduino-cli upload -p /dev/cu.usbmodem21201 \
   --fqbn esp32:esp32:esp32p4:PSRAM=enabled,FlashSize=16M,PartitionScheme=default,CDCOnBoot=cdc,USBMode=hwcdc,UploadSpeed=921600 \
-  HttpsClient/HttpsClient.ino
+  RSSReader/RSSReader.ino
 ```
-
-※ `CameraWebServer` など一部サンプルは付属の `partitions.csv` を使用してください。
 
 ### ライブラリのインストール（ベース）
 
-ネットワーク系サンプルでも、表示や基本制御には Tab5_Arduino と同じ M5 系ライブラリを利用します。
+ネットワーク系サンプルでは、表示や基本制御に M5Unified を利用します。
 
 ```bash
 arduino-cli lib install "M5Unified@0.2.10"
-arduino-cli lib install "M5GFX@0.2.15"
-arduino-cli lib install "LovyanGFX@1.2.7"
 ```
 
-MQTT や他のプロトコル用には、必要に応じて以下のようなライブラリを使用します（例）:
+プロジェクトごとに必要な追加ライブラリ：
 
-- `PubSubClient`（MQTT 用）
-- `ArduinoJson`（JSON パース）
+- **PubSubClient** - MQTT通信用（MQTTプロジェクト）
+  ```bash
+  arduino-cli lib install "PubSubClient"
+  ```
+
+- **ArduinoJson** - JSON解析用（ChatGPT、WebAPI_Wetherプロジェクト）
+  ```bash
+  arduino-cli lib install "ArduinoJson"
+  ```
+
+**注意**: M5GFXとLovyanGFXはM5Unifiedに含まれているため、個別のインストールは不要です。
 
 ---
 
@@ -145,7 +150,7 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 ### Web/API通信（4個）
 | No. | プログラム名 | 状態 | 主要機能 |
 |-----|-------------|------|----------|
-| 4 | HttpsClient | ✅ 完了 | 汎用HTTPSクライアント |
+| 4 | RSSReader | ✅ 完了 | RSSフィード取得・表示（Yahoo News） |
 | 5 | WebAPI_Wether | ✅ 完了 | 天気情報API取得 |
 | 6 | WebServer | ✅ 完了 | シンプルWebサーバー |
 | 7 | ChatGPT | ✅ 完了 | ChatGPT API連携 |
@@ -160,22 +165,24 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 
 ## 🌐 代表的なサンプル
 
-- **HttpsClient/HttpsClient.ino**
-  - 任意の HTTPS サーバへ接続するクライアントサンプル
-  - REST API や Web API アクセスの雛形として利用可能
+- **RSSReader/RSSReader.ino**
+  - Yahoo NewsのRSSフィードを取得して表示
+  - HTTPS通信でRSSを読み込み、XMLを解析してタイトルを抽出
+  - 日本語フォントで最大5件のニュースを表示
 
 - **MQTT/MQTT.ino**
   - MQTT ブローカーへの接続・購読・発行のサンプル
   - IoT デバイス間通信の基本パターンをカバー
+  - 自動再接続機能付き
 
 - **SNTP/SNTP.ino**
   - SNTP（Simple Network Time Protocol）による時刻同期サンプル
   - NTPサーバーから正確な時刻を取得してRTCに設定
-  - タイムゾーン設定とサマータイム対応
+  - タイムゾーン設定対応（日本時間: UTC-9）
 
 - **WebAPI_Wether/WebAPI_Wether.ino**
-  - 天気情報などの Web API にアクセスするサンプル
-  - JSON 解析や API レスポンス表示の参考になります
+  - 気象庁の天気予報APIにアクセスするサンプル
+  - JSON 解析や天気情報の表示
 
 - **WebServer/webserver.ino**
   - シンプルな HTTP Web サーバ
@@ -183,17 +190,20 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 
 - **Wifi_Connect/Wifi_Connect.ino**
   - 最小構成の Wi-Fi 接続テスト
-  - HTTPS通信の例として、Yahoo NewsのRSSフィードを取得
+  - HTTP通信のテスト用サンプル
 
 - **Wifi_Scan/Wifi_Scan.ino**
   - 周囲の Wi-Fi アクセスポイントをスキャンして一覧表示
+  - RSSI（信号強度）と暗号化方式を表示
 
 - **Wifi_Antenna/Wifi_Antenna.ino**
   - Wi-Fi アンテナの感度・受信状態を確認するテスト
+  - 内蔵/外部アンテナの切り替え
 
 - **ChatGPT/ChatGPT.ino**
-  - OpenAI / ChatGPT API を利用したシンプルなチャットクライアント例
+  - OpenAI / ChatGPT API を利用したチャットクライアント
   - プロンプト送信とレスポンス表示の基本フローを実装
+  - 日本語対応
 
 ---
 
@@ -209,7 +219,7 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 ## 📊 プロジェクト統計
 
 - **総プログラム数**: 9個
-- **ドキュメント数**: 10個（README.md + 各プロジェクトReadme.md）
+- **ドキュメント数**: 9個（README.md + 各プロジェクトReadme.md）
 - **動作確認率**: 100%
 - **カテゴリ数**: 3カテゴリ
   - Wi-Fi基本機能: 3個
@@ -254,6 +264,9 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 
 ### サンプル別参考リンク
 
+#### RSSReader
+- [Yahoo!ニュース・トピックス RSS](https://news.yahoo.co.jp/rss/topics/top-picks.xml)
+
 #### ChatGPT
 - [M5StackでChatGPTを動かす - Device Plus](https://deviceplus.jp/mc-general/m5stack-chatgpt-01/)
 - [OpenAI API Documentation](https://platform.openai.com/docs/api-reference)
@@ -281,7 +294,7 @@ MQTT や他のプロトコル用には、必要に応じて以下のようなラ
 ---
 
 **作成日**: 2025年12月6日  
-**最終更新**: 2025年12月22日（プロジェクト構成を最新化）  
+**最終更新**: 2025年12月28日（RSSReader追加、ライブラリ最適化、コメント日本語化）  
 **対象デバイス**: M5Stack Tab5 (ESP32-P4)  
 **開発環境**: Arduino IDE / Arduino CLI  
 **動作確認**: ✅ 全9プロジェクト正常動作確認済み

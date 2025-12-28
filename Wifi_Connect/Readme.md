@@ -171,3 +171,4 @@ Copyright (c) 2025 macole
 **対象デバイス**: M5Stack Tab5  
 **動作確認**: ✅ 正常動作確認済み
 
+https://lang-ship.com/blog/work/esp32-wi-fi/

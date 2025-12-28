@@ -5,21 +5,11 @@
  * 参考: https://deviceplus.jp/mc-general/m5stack-chatgpt-01/
  */
 
-#include <Arduino.h>
-#include <M5GFX.h>
 #include <M5Unified.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
-
-#define SDIO2_CLK GPIO_NUM_12
-#define SDIO2_CMD GPIO_NUM_13
-#define SDIO2_D0  GPIO_NUM_11
-#define SDIO2_D1  GPIO_NUM_10
-#define SDIO2_D2  GPIO_NUM_9
-#define SDIO2_D3  GPIO_NUM_8
-#define SDIO2_RST GPIO_NUM_15
 
 // WiFi認証情報とOpenAI APIキーは secrets.h から読み込みます
 #include "secrets.h"
@@ -46,7 +36,6 @@ int promptIndex = 0;
 
 void setup() {
     M5.begin();
-    Serial.begin(115200);
     delay(1000);
 
     M5.Display.setRotation(3); // 横向き
@@ -58,7 +47,11 @@ void setup() {
     M5.Display.println("Initializing...");
 
     // WiFi設定
-    WiFi.setPins(SDIO2_CLK, SDIO2_CMD, SDIO2_D0, SDIO2_D1, SDIO2_D2, SDIO2_D3, SDIO2_RST);
+    // Arduino IDEでM5Tab5ボードを選択した場合、定義済みのデフォルトピンを使用できます
+    WiFi.setPins(BOARD_SDIO_ESP_HOSTED_CLK, BOARD_SDIO_ESP_HOSTED_CMD, BOARD_SDIO_ESP_HOSTED_D0,
+        BOARD_SDIO_ESP_HOSTED_D1, BOARD_SDIO_ESP_HOSTED_D2, BOARD_SDIO_ESP_HOSTED_D3,
+        BOARD_SDIO_ESP_HOSTED_RESET);
+    
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
 
@@ -211,16 +204,11 @@ void sendChatGPTRequest(String prompt) {
     String requestBody;
     serializeJson(doc, requestBody);
     
-    Serial.println("Request:");
-    Serial.println(requestBody);
-    
     // リクエスト送信
     int httpCode = http.POST(requestBody);
     
     if (httpCode == HTTP_CODE_OK) {
         String payload = http.getString();
-        Serial.println("Response:");
-        Serial.println(payload);
         
         // JSONパース
         DynamicJsonDocument responseDoc(8192);
@@ -240,22 +228,11 @@ void sendChatGPTRequest(String prompt) {
                 displayError("No response in JSON");
             }
         } else {
-            Serial.print("JSON parse error: ");
-            Serial.println(error.c_str());
             displayError("JSON parse error");
         }
     } else {
-        Serial.print("HTTP error: ");
-        Serial.println(httpCode);
         String errorMsg = "HTTP Error: " + String(httpCode);
         displayError(errorMsg);
-        
-        // エラーレスポンスの内容を表示
-        if (httpCode > 0) {
-            String errorResponse = http.getString();
-            Serial.println("Error response:");
-            Serial.println(errorResponse);
-        }
     }
     
     http.end();

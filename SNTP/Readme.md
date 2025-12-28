@@ -17,33 +17,17 @@ M5Stack Tab5のWiFi機能を使用して、SNTP（Simple Network Time Protocol�
   arduino-cli lib install "M5Unified@0.2.10"
   ```
 - **WiFi**: ESP32標準ライブラリ（Arduino IDEに含まれています）
-- **esp_sntp / sntp**: ESP32標準ライブラリ（Arduino IDEに含まれています）
+- **esp_sntp**: ESP32標準ライブラリ（Arduino IDEに含まれています）
 
-### esp_sntp.h と sntp.h の違い
+### esp_sntp.hについて
 
-このスケッチでは、`SNTP/SNTP.ino` の先頭で次の2つのヘッダーファイルをインクルードしています。
-
-```cpp
-#include <esp_sntp.h>
-#include <sntp.h>
-```
-
-それぞれの役割と、なぜ両方を使っているかは次の通りです。
+このスケッチでは、SNTP時刻同期のために`esp_sntp.h`を使用しています。
 
 - **esp_sntp.h**
-  - ESP-IDF（ESP32の公式フレームワーク）側で提供されている、SNTP 用の**高レベルラッパーAPI**です。
-  - このスケッチで使用している `configTzTime()` などの「タイムゾーンとNTPサーバーをまとめて設定する便利関数」は `esp_sntp.h` 側で宣言されています。
-- **sntp.h**
-  - ESP32内部で使われている lwIP スタックの **低レベルSNTPライブラリ**です。
-  - SNTP同期状態を表す `sntp_sync_status_t` や、その状態を取得する `sntp_get_sync_status()` などの関数・定数がこちらで定義されています。
-
-このスケッチでは、
-
-- **NTPサーバーの設定とタイムゾーン設定**には `configTzTime()`（`esp_sntp.h`）を使用し、
-- **「同期完了するまで待つ処理」には `sntp_get_sync_status()`（`sntp.h`）を使用**
-
-しているため、**両方のヘッダーファイルをインクルードする必要があります。**  
-片方だけでは、便利な高レベルAPIまたは同期状態の取得のいずれかが不足してしまうためです。
+  - ESP-IDF（ESP32の公式フレームワーク）が提供する、SNTP用の高レベルAPIです
+  - `configTzTime()` - タイムゾーンとNTPサーバーをまとめて設定する便利関数
+  - `sntp_get_sync_status()` - SNTP同期状態を取得する関数
+  - これらの関数により、簡単に時刻同期を実装できます
 
 ## 🚀 セットアップ
 
@@ -77,19 +61,19 @@ M5Stack Tab5のWiFi機能を使用して、SNTP（Simple Network Time Protocol�
 
 ## 💻 使用方法
 
-1. WiFiのSSIDとパスワードを設定
-2. タイムゾーンを設定（オプション）
+1. `secrets.h`にWiFiのSSIDとパスワードを設定
+2. タイムゾーンを設定（デフォルト: UTC-9 / 日本時間）
 3. プログラムをアップロード
-4. デバイスがWiFiネットワークに接続し、NTPサーバーから時刻を取得します
-5. 同期された時刻が画面とシリアルモニターに表示されます
+4. デバイスがWiFiネットワークに接続し、NTPサーバーから時刻を取得
+5. 同期完了後、3種類の時刻（RTC、ESP32 UTC、ローカル）が画面とシリアルモニターに表示されます
 
 ## 📊 機能
 
 - **SNTP時刻同期**: NTPサーバーから正確な時刻を取得
-- **複数サーバー対応**: 複数のNTPサーバーに対応（フォールバック機能）
-- **タイムゾーン設定**: タイムゾーンを設定可能
-- **自動同期**: 定期的に時刻を同期
-- **時刻表示**: 同期された時刻を画面に表示
+- **複数サーバー対応**: 最大3つのNTPサーバーに対応（フォールバック機能）
+- **タイムゾーン設定**: タイムゾーンを設定可能（日本時間: UTC-9）
+- **RTC連携**: 取得した時刻をM5Stack Tab5のRTCに設定
+- **3種類の時刻表示**: RTC時刻、ESP32 UTC時刻、ローカル時刻を同時表示
 
 ## 🔍 プログラムの動作
 
@@ -104,8 +88,8 @@ M5Stack Tab5のWiFi機能を使用して、SNTP（Simple Network Time Protocol�
    - デバイスの時刻を更新
 
 3. **時刻表示**
-   - 同期された時刻を画面に表示
-   - シリアルモニターにも出力
+   - RTC時刻、ESP32 UTC時刻、ローカル時刻を画面に表示
+   - シリアルモニターにも同じ情報を出力
 
 ## 📝 コードの主要なポイント
 
@@ -121,11 +105,20 @@ M5Stack Tab5のWiFi機能を使用して、SNTP（Simple Network Time Protocol�
 #define NTP_TIMEZONE "UTC-9"  // 日本時間（UTC-9）
 ```
 
-### SNTPの初期化
+### SNTP時刻同期の実行
 ```cpp
-sntp_set_time_sync_notification_cb(time_sync_notification_cb);
-sntp_servermode_dhcp(1);
-sntp_set_sync_mode(SNTP_SYNC_MODE_IMMED);
+// タイムゾーンとNTPサーバーを設定
+configTzTime(NTP_TIMEZONE, NTP_SERVER1, NTP_SERVER2, NTP_SERVER3);
+
+// 同期完了を待機
+while (sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED) {
+    delay(1000);
+}
+
+// RTCに時刻を設定
+time_t t = time(nullptr) + 1;
+while (t > time(nullptr));  // 秒単位で同期
+M5.Rtc.setDateTime(gmtime(&t));
 ```
 
 ## 🌍 タイムゾーン設定例
@@ -157,5 +150,6 @@ Copyright (c) 2025 macole
 ---
 
 **作成日**: 2025年12月6日  
+**最終更新**: 2025年12月28日（ライブラリ構成を最適化）  
 **対象デバイス**: M5Stack Tab5  
 **動作確認**: ✅ 正常動作確認済み
